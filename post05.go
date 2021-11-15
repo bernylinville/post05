@@ -1,3 +1,22 @@
+/*
+The package works on 2 tables on a PostgreSQL data base server.
+The names of the tables are:
+    * Users
+    * Userdata
+The definitions of the tables in the PostgreSQL server are:
+    CREATE TABLE Users (
+        ID SERIAL,
+        Username VARCHAR(100) PRIMARY KEY
+    );
+    CREATE TABLE Userdata (
+        UserID Int NOT NULL,
+        Name VARCHAR(100),
+        Surname VARCHAR(100),
+        Description VARCHAR(200)
+    );
+    This is rendered as code
+This is not rendered as code
+*/
 package post05
 
 import (
@@ -9,7 +28,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// Connection details
+/*
+This block of global variables holds the connection details to the Postgres server
+    Hostname: is the IP or the hostname of the server
+    Port: is the TCP port the DB server listens to
+    Username: is the username of the database user
+    Password: is the password of the database user
+    Database: is the name of the Database in PostgreSQL
+*/
 var (
 	Hostname = ""
 	Port     = 2345
@@ -18,8 +44,9 @@ var (
 	Database = ""
 )
 
-// Userdata is for holding full user data
-// Userdata table + Username
+// The Userdata structure is for holding full user data
+// from the Userdata table and the Username from the
+// Users table
 type Userdata struct {
 	ID          int
 	Username    string
@@ -28,6 +55,8 @@ type Userdata struct {
 	Description string
 }
 
+// openConnection() is for opening the Postgres connection
+// in order to be used by the other functions of the package.
 func openConnection() (*sql.DB, error) {
 	// Connection string
 	conn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", Hostname, Port, Username, Password, Database)
@@ -111,7 +140,10 @@ func AddUser(d Userdata) int {
 	return userID
 }
 
-// DeleteUser deletes an existing user
+/*
+   DeleteUser deletes an existing user if the user exists.
+   It requires the User ID of the user to be deleted.
+*/
 func DeleteUser(id int) error {
 	db, err := openConnection()
 	if err != nil {
@@ -154,6 +186,7 @@ func DeleteUser(id int) error {
 }
 
 // ListUsers lists all users in the database
+// and returns a slice of Userdata.
 func ListUsers() ([]Userdata, error) {
 	Data := []Userdata{}
 	db, err := openConnection()
@@ -186,6 +219,9 @@ func ListUsers() ([]Userdata, error) {
 }
 
 // UpdateUser is for updating an existing user
+// given a Userdata structure.
+// The user ID of the user to be updated is found
+// inside the function.
 func UpdateUser(d Userdata) error {
 	db, err := openConnection()
 	if err != nil {
